@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://myapp.com"
+		elementFormDefault="qualified"		
+		xmlns="http://www.w3.org/2001/XMLSchema" 
+		xmlns:typens="http://myapp.com">
+
+    <element name="Event">
+	    <complexType>
+			<sequence>
+                <element name="type" type="typens:EventType"/>
+                <element ref="typens:Marketplace" minOccurs="0"/>
+                <element ref="typens:Creator" minOccurs="0"/>
+                <element ref="typens:Payload" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+
+    <simpleType name="EventType">
+        <restriction base="string">
+            <enumeration value="SUBSCRIPTION_ORDER"/>
+            <enumeration value="SUBSCRIPTION_CHANGE"/>
+            <enumeration value="SUBSCRIPTION_CANCEL"/>
+            <enumeration value="SUBSCRIPTION_STATUS"/>
+            <enumeration value="SUBSCRIPTION_NOTICE"/>
+            <enumeration value="USER_ASSIGNMENT"/>
+            <enumeration value="USER_UNASSIGNMENT"/>
+        </restriction>
+    </simpleType>
+
+    <simpleType name="ErrorCode">
+        <restriction base="string">
+            <enumeration value="USER_ALREADY_EXISTS"/>
+            <enumeration value="USER_NOT_FOUND"/>
+            <enumeration value="ACCOUNT_NOT_FOUND"/>
+            <enumeration value="MAX_USERS_REACHED"/>
+            <enumeration value="UNAUTHORIZED"/>
+            <enumeration value="OPERATION_CANCELED"/>
+            <enumeration value="CONFIGURATION_ERROR"/>
+            <enumeration value="INVALID_RESPONSE"/>
+            <enumeration value="UNKNOWN_ERROR"/>
+        </restriction>
+    </simpleType>
+
+    <element name="Marketplace">
+        <complexType>
+            <sequence>
+                <element name="partner" type="string" nillable="true"/>
+                <element name="baseUrl" type="string" nillable="true"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="Creator">
+        <complexType>
+            <sequence>
+                <element name="email" type="string" nillable="true"/>
+                <element name="firstName" type="string" nillable="true"/>
+                <element name="lastName" type="string" nillable="true"/>
+                <element name="openId" type="string" nillable="true"/>
+                <element name="language" type="string" nillable="true"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="Payload">
+        <complexType>
+            <sequence>
+                <element ref="typens:Company" minOccurs="0"/>
+                <element ref="typens:Order" minOccurs="0"/>
+                <element ref="typens:Account" minOccurs="0"/>
+                <element ref="typens:User" minOccurs="0"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="Company">
+        <complexType>
+            <sequence>
+                <element name="uuid" type="string" nillable="true"/>
+                <element name="email" type="string" nillable="true"/>
+                <element name="name" type="string" nillable="true"/>
+                <element name="phoneNumber" type="string" nillable="true"/>
+                <element name="website" type="string" nillable="true"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="Order">
+        <complexType>
+            <sequence>
+                <element name="editionCode" type="string" nillable="true"/>
+                <element ref="typens:Item" minOccurs="0" maxOccurs="unbounded"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="Item">
+        <complexType>
+            <sequence>
+                <element name="quantity" type="int"/>
+                <element name="unit" type="string"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="Result">
+        <complexType>
+            <sequence>
+                <element name="success" type="boolean"/>
+                <element name="message" type="string" nillable="true"/>
+                <element name="accountIdentifier" type="string" nillable="true"/>
+                <element name="errorCode" type="typens:ErrorCode" nillable="true"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="Account">
+        <complexType>
+            <sequence>
+                <element name="accountIdentifier" type="string"/>
+                <element name="status" type="string"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="User">
+        <complexType>
+            <sequence>
+                <element name="email" type="string" nillable="true"/>
+                <element name="firstName" type="string" nillable="true"/>
+                <element name="lastName" type="string" nillable="true"/>
+                <element name="openId" type="string" nillable="true"/>
+                <element name="language" type="string" nillable="true"/>
+                <element ref="typens:Attributes" minOccurs="0"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="Attributes">
+        <complexType>
+            <sequence>
+                <element ref="typens:Entry" minOccurs="0" maxOccurs="unbounded"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="Entry">
+        <complexType>
+            <sequence>
+                <element name="key" type="string"/>
+                <element name="value" type="string"/>
+            </sequence>
+        </complexType>
+    </element>
+
+
+</schema>

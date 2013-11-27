@@ -1,6 +1,6 @@
 target
+*noncommit
 *.iml
-*Test.java
 *.idea
 
 # OS generated files #

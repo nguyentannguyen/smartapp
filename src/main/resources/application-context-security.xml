@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:oauth="http://www.springframework.org/schema/security/oauth"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+              http://www.springframework.org/schema/security/oauth http://www.springframework.org/schema/security/spring-security-oauth-1.0.xsd">
+
+    <http auto-config="true">
+        <intercept-url pattern="/appdirect/application.wadl" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/appdirect/**" access="ROLE_CONSUMER"/>
+        <intercept-url pattern="/rest/application.wadl**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <intercept-url pattern="/rest/**" access="ROLE_USER"/>
+        <intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+        <logout/>
+        <openid-login login-page="/openidlogin.jsp" user-service-ref="registeringUserService"
+                      authentication-failure-url="/openidlogin.jsp?login_error=true">
+            <attribute-exchange identifier-match="https://www.google.com/.*">
+                <openid-attribute name="email" type="http://axschema.org/contact/email" required="true" count="1"/>
+                <openid-attribute name="firstname" type="http://axschema.org/namePerson/first" required="true" />
+                <openid-attribute name="lastname" type="http://axschema.org/namePerson/last" required="true" />
+            </attribute-exchange>
+            <attribute-exchange identifier-match=".*yahoo.com.*">
+                <openid-attribute name="email" type="http://axschema.org/contact/email" required="true"/>
+                <openid-attribute name="fullname" type="http://axschema.org/namePerson" required="true" />
+            </attribute-exchange>
+            <attribute-exchange identifier-match=".*myopenid.com.*">
+                <openid-attribute name="email" type="http://schema.openid.net/contact/email" required="true"/>
+                <openid-attribute name="fullname" type="http://schema.openid.net/namePerson" required="true" />
+            </attribute-exchange>
+        </openid-login>
+        <remember-me token-repository-ref="tokenRepo" user-service-ref="registeringUserService"/>
+    </http>
+
+    <beans:bean id="tokenRepo" class="org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl" />
+
+    <!--
+        A custom UserDetailsService which will allow any user to authenticate and "register" their IDs in an internal map
+        for use if they return to the site. This is the most common usage pattern for sites which use OpenID.
+     -->
+    <beans:bean id="registeringUserService" class="com.smartapp.openid.CustomUserDetailsService" />
+
+    <authentication-manager alias="authenticationManager">
+        <authentication-provider>
+            <user-service>
+                <user name="${consume_key}" password="${consume_secret}" authorities="ROLE_USER"/>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+
+    <oauth:provider consumer-details-service-ref="consumerDetails"
+                    token-services-ref="tokenServices"
+                    request-token-url="/appdirect/request_token"
+                    authenticate-token-url="/appdirect/authorize"
+                    user-approval-url="/appdirect/confirm_access"
+                    access-granted-url="/request_token_authorized.jsp"
+                    access-token-url="/appdirect/access_token"
+                    require10a="false"/>
+
+    <oauth:consumer-details-service id="consumerDetails">
+        <oauth:consumer name="${consume_name}" key="${consume_key}" secret="${consume_secret}" requiredToObtainAuthenticatedToken="false" authorities="ROLE_CONSUMER"/>
+    </oauth:consumer-details-service>
+
+    <oauth:token-services id="tokenServices"/>
+
+    <!--j_spring_openid_security_check?action=verify&openid_identifier={openid}-->
+
+</beans:beans>
